@@ -1,3 +1,9 @@
+const _ = require('lodash');
+
+function isPromise(func) {
+  return func && typeof func.then === 'function';
+}
+
 const tests = [];
 
 class Tester {
@@ -25,6 +31,9 @@ class Tester {
         }), set: true };
       } else {
         this.returnValue = { value: this.func(), set: true };
+        if (isPromise(this.returnValue.value)) {
+          this.returnValue = { value: await this.func(), set: true };
+        }
 
         this.failed = false;
       }
@@ -55,9 +64,10 @@ function assert(description, func) {
           await tester.try();
           tester.print();
           if (tester.failed) resolve(tester.error);
-          else resolve(null, tester.returnValue.value);
+          else resolve(tester.returnValue.value);
         });
       });
+    return rootPromise;
   }
 
   function fails() {
@@ -73,9 +83,10 @@ function assert(description, func) {
           }
           tester.print();
           if (tester.failed) resolve(tester.error);
-          else resolve(null, tester.returnValue.value);
+          else resolve(tester.returnValue.value);
         });
       });
+    return rootPromise;
   }
 
   function equals(val) {
@@ -87,18 +98,18 @@ function assert(description, func) {
             tester.print();
             resolve(tester.error);
           }
-          else if (val === tester.returnValue.value) {
+          else if (_.isEqual(val, tester.returnValue.value)) {
             tester.failed = false;
             tester.print();
-            resolve(null, true);
+            resolve(true);
           }
           else {
             tester.failed = true;
             const errorLines = [
               'did not match expectation\n',
               ' ---\n',
-              ` actual: ${tester.returnValue.value}\n`,
-              ` expected: ${val}\n`,
+              ` actual: ${JSON.stringify(tester.returnValue.value)}\n`,
+              ` expected: ${JSON.stringify(val)}\n`,
               ' ...\n',
             ];
             tester.error = errorLines.join('');
@@ -107,6 +118,7 @@ function assert(description, func) {
           }
         });
       });
+    return rootPromise;
   };
 
   return { succeeds, fails, equals };
@@ -118,6 +130,7 @@ function header(text) {
     .then(() => {
       console.log(`# ${text}`);
     });
+  return rootPromise;
 }
 
 

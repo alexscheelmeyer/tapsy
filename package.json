@@ -11,5 +11,8 @@
   "devDependencies": {
     "nyc": "13.1.0",
     "tap-difflet": "0.7.1"
+  },
+  "dependencies": {
+    "lodash": "4.17.11"
   }
 }
