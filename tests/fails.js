@@ -11,3 +11,5 @@ assert('calling callback with error string', (cb) => cb('error'))
 assert('throwing string exception', () => { throw 'bah'; })
   .fails();
 
+assert('delayed rejected promise', () => new Promise((resolve, reject) => setTimeout(() => reject('not fun'), 50)))
+  .fails();

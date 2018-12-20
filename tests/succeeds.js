@@ -11,3 +11,5 @@ assert('calling callback undefined', (cb) => cb())
 assert('calling callback null', (cb) => cb(null))
   .succeeds();
 
+assert('delayed resolved promise', () => new Promise((resolve, reject) => setTimeout(resolve, 50)))
+  .succeeds();

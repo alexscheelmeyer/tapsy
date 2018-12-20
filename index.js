@@ -32,7 +32,16 @@ class Tester {
       } else {
         this.returnValue = { value: this.func(), set: true };
         if (isPromise(this.returnValue.value)) {
-          this.returnValue = { value: await this.func(), set: true };
+          this.returnValue = await this.returnValue.value
+            .then((value) => {
+              this.failed = false;
+              return { value, set: true };
+            })
+            .catch((e) => {
+              this.failed = true
+              return undefined;
+            });
+          return;
         }
 
         this.failed = false;
@@ -82,8 +91,8 @@ function assert(description, func) {
             tester.failed = true;
           }
           tester.print();
-          if (tester.failed) resolve(tester.error);
-          else resolve(tester.returnValue.value);
+          if (tester.failed) resolve();
+          else resolve(tester.error);
         });
       });
     return rootPromise;
