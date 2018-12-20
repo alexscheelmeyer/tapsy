@@ -4,17 +4,12 @@
   "description": "testing framework",
   "main": "index.js",
   "scripts": {
-    "test2": "istanbul --include-all-sources cover -x tests/**/*.js tests/all.js | tap-difflet && istanbul check-coverage --lines 100 --statement 100 --function 100 --branch 100",
     "test": "nyc --reporter=html --reporter=text-summary node tests/all.js | tap-difflet"
   },
   "author": "Alex Scheel Meyer",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "4.1.0",
-    "faucet": "0.0.1",
-    "istanbul": "0.4.5",
     "nyc": "13.1.0",
-    "tap-difflet": "0.7.1",
-    "tap-nirvana": "1.1.0"
+    "tap-difflet": "0.7.1"
   }
 }
