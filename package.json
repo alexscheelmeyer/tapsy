@@ -4,11 +4,15 @@
   "description": "testing framework",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text-summary node tests/all.js | tap-difflet"
+    "test": "nyc --reporter=html --reporter=text-summary node tests/all.js | tap-difflet",
+    "lint": "eslint ."
   },
   "author": "Alex Scheel Meyer",
   "license": "MIT",
   "devDependencies": {
+    "eslint": "3.17.1",
+    "eslint-config-cerebral": "0.0.15",
+    "eslint-plugin-import": "2.2.0",
     "nyc": "13.1.0",
     "tap-difflet": "0.7.1"
   },

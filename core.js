@@ -19,7 +19,7 @@ class Tester {
     try {
       const isAsync = this.func.length >= 1;
       if (isAsync) {
-        this.returnValue = { value: this.func((err, ...args) => {
+        const value = this.func((err, ...args) => {
           this.callbackValues = args;
           if (err !== undefined && err !== null) {
             this.failed = true;
@@ -27,7 +27,8 @@ class Tester {
           } else {
             this.failed = false;
           }
-        }), set: true };
+        });
+        this.returnValue = { value, set: true };
       } else {
         this.returnValue = { value: this.func(), set: true };
         if (isPromise(this.returnValue.value)) {
@@ -37,7 +38,8 @@ class Tester {
               return { value, set: true };
             })
             .catch((e) => {
-              this.failed = true
+              this.error = e.toString();
+              this.failed = true;
               return undefined;
             });
           return;
@@ -69,7 +71,7 @@ function init(silent) {
   }
 
   const tests = [];
-  let rootPromise = new Promise((resolve, reject) => resolve());
+  let rootPromise = new Promise((resolve) => resolve());
 
   function assert(description, func) {
     const tester = new Tester(tests.length + 1, func, description, silent);
@@ -77,21 +79,20 @@ function init(silent) {
 
     function succeeds() {
       rootPromise = rootPromise
-        .then(() => {
-          return new Promise(async (resolve, reject) => {
+        .then(() =>
+          new Promise(async (resolve) => {
             await tester.try();
             tester.print();
             if (tester.failed) resolve(tester.error);
             else resolve(tester.returnValue.value);
-          });
-        });
+          }));
       return rootPromise;
     }
 
     function fails() {
       rootPromise = rootPromise
-        .then(() => {
-          return new Promise(async (resolve, reject) => {
+        .then(() =>
+          new Promise(async (resolve) => {
             await tester.try();
             if (tester.failed) {
               tester.failed = false;
@@ -102,26 +103,23 @@ function init(silent) {
             tester.print();
             if (tester.failed) resolve();
             else resolve(tester.error);
-          });
-        });
+          }));
       return rootPromise;
     }
 
     function equals(val) {
       rootPromise = rootPromise
-        .then(() => {
-          return new Promise(async (resolve, reject) => {
+        .then(() =>
+          new Promise(async (resolve) => {
             await tester.try();
             if (tester.failed) {
               tester.print();
               resolve(tester.error);
-            }
-            else if (_.isEqual(val, tester.returnValue.value)) {
+            } else if (_.isEqual(val, tester.returnValue.value)) {
               tester.failed = false;
               tester.print();
               resolve(true);
-            }
-            else {
+            } else {
               tester.failed = true;
               const errorLines = [
                 'did not match expectation\n',
@@ -134,10 +132,9 @@ function init(silent) {
               tester.print();
               resolve('not equal');
             }
-          });
-        });
+          }));
       return rootPromise;
-    };
+    }
 
     return { succeeds, fails, equals };
   }
