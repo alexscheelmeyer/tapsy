@@ -1,11 +1,13 @@
-const { assert } = require('..');
+const { assert, header } = require('..');
 
-assert('adding numbers', () => 1+1)
+header('Succeeds');
+
+assert('statement', () => 1+1)
   .succeeds();
 
-assert('throwing string exception',
-  () => {
-    throw 'bah';
-  })
+assert('calling callback undefined', (cb) => cb())
+  .succeeds();
+
+assert('calling callback null', (cb) => cb(null))
   .succeeds();
 

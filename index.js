@@ -12,10 +12,23 @@ class Tester {
 
   try() {
     try {
-      this.returnValue = { value: this.func(), set: true };
-      this.failed = false;
+      const isAsync = this.func.length >= 1;
+      if (isAsync) {
+        this.returnValue = { value: this.func((err, ...args) => {
+          this.callbackValues = args;
+          if (err !== undefined && err !== null) {
+            this.failed = true;
+            this.error = `did not succeed, callback got "${err}"`;
+          } else {
+            this.failed = false;
+          }
+        }), set: true };
+      } else {
+        this.returnValue = { value: this.func(), set: true };
+        this.failed = false;
+      }
     } catch (e) {
-      this.error = 'threw exception';
+      this.error = `threw exception (${e.toString()})`;
     }
   }
 
@@ -35,6 +48,21 @@ function assert(description, func) {
   function succeeds() {
     return new Promise((resolve, reject) => {
       tester.try();
+      tester.print();
+      if (tester.failed) resolve(tester.error);
+      else resolve(null, tester.returnValue.value);
+    });
+  }
+
+  function fails() {
+    return new Promise((resolve, reject) => {
+      tester.try();
+      if (tester.failed) {
+        tester.failed = false;
+      } else {
+        tester.error = 'succeeded';
+        tester.failed = true;
+      }
       tester.print();
       if (tester.failed) resolve(tester.error);
       else resolve(null, tester.returnValue.value);
@@ -69,10 +97,15 @@ function assert(description, func) {
     });
   };
 
-  return { succeeds, equals };
+  return { succeeds, fails, equals };
+}
+
+
+function header(text) {
+  console.log(`# ${text}`);
 }
 
 
 process.on('exit', () => console.log(`1..${tests.length}`));
 
-module.exports = { assert };
+module.exports = { assert, header };
