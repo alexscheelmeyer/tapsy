@@ -10,7 +10,7 @@ class Tester {
     this.returnValue = { set: false, value: undefined };
   }
 
-  try() {
+  async try() {
     try {
       const isAsync = this.func.length >= 1;
       if (isAsync) {
@@ -25,6 +25,7 @@ class Tester {
         }), set: true };
       } else {
         this.returnValue = { value: this.func(), set: true };
+
         this.failed = false;
       }
     } catch (e) {
@@ -41,60 +42,71 @@ class Tester {
   }
 }
 
+let rootPromise = new Promise((resolve, reject) => resolve());
+
 function assert(description, func) {
   const tester = new Tester(tests.length + 1, func, description);
   tests.push(tester);
 
   function succeeds() {
-    return new Promise((resolve, reject) => {
-      tester.try();
-      tester.print();
-      if (tester.failed) resolve(tester.error);
-      else resolve(null, tester.returnValue.value);
-    });
+    rootPromise = rootPromise
+      .then(() => {
+        return new Promise(async (resolve, reject) => {
+          await tester.try();
+          tester.print();
+          if (tester.failed) resolve(tester.error);
+          else resolve(null, tester.returnValue.value);
+        });
+      });
   }
 
   function fails() {
-    return new Promise((resolve, reject) => {
-      tester.try();
-      if (tester.failed) {
-        tester.failed = false;
-      } else {
-        tester.error = 'succeeded';
-        tester.failed = true;
-      }
-      tester.print();
-      if (tester.failed) resolve(tester.error);
-      else resolve(null, tester.returnValue.value);
-    });
+    rootPromise = rootPromise
+      .then(() => {
+        return new Promise(async (resolve, reject) => {
+          await tester.try();
+          if (tester.failed) {
+            tester.failed = false;
+          } else {
+            tester.error = 'succeeded';
+            tester.failed = true;
+          }
+          tester.print();
+          if (tester.failed) resolve(tester.error);
+          else resolve(null, tester.returnValue.value);
+        });
+      });
   }
 
   function equals(val) {
-    return new Promise((resolve, reject) => {
-      tester.try();
-      if (tester.failed) {
-        tester.print();
-        resolve(tester.error);
-      }
-      else if (val === tester.returnValue.value) {
-        tester.failed = false;
-        tester.print();
-        resolve(null, true);
-      }
-      else {
-        tester.failed = true;
-        const errorLines = [
-          'did not match expectation\n',
-          ' ---\n',
-          ` actual: ${tester.returnValue.value}\n`,
-          ` expected: ${val}\n`,
-          ' ...\n',
-        ];
-        tester.error = errorLines.join('');
-        tester.print();
-        resolve('not equal');
-      }
-    });
+    rootPromise = rootPromise
+      .then(() => {
+        return new Promise(async (resolve, reject) => {
+          await tester.try();
+          if (tester.failed) {
+            tester.print();
+            resolve(tester.error);
+          }
+          else if (val === tester.returnValue.value) {
+            tester.failed = false;
+            tester.print();
+            resolve(null, true);
+          }
+          else {
+            tester.failed = true;
+            const errorLines = [
+              'did not match expectation\n',
+              ' ---\n',
+              ` actual: ${tester.returnValue.value}\n`,
+              ` expected: ${val}\n`,
+              ' ...\n',
+            ];
+            tester.error = errorLines.join('');
+            tester.print();
+            resolve('not equal');
+          }
+        });
+      });
   };
 
   return { succeeds, fails, equals };
@@ -102,7 +114,10 @@ function assert(description, func) {
 
 
 function header(text) {
-  console.log(`# ${text}`);
+  rootPromise = rootPromise
+    .then(() => {
+      console.log(`# ${text}`);
+    });
 }
 
 
