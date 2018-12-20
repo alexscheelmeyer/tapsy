@@ -6,30 +6,22 @@ class Tester {
     this.func = func;
     this.description = description;
     this.failed = true;
-    this.error = 'could not complete';
-    this.value = undefined;
+    this.error = 'did not succeed';
+    this.returnValue = { set: false, value: undefined };
   }
 
   try() {
     try {
-      this.value = this.func();
+      this.returnValue = { value: this.func(), set: true };
       this.failed = false;
     } catch (e) {
-      this.error = `${this.description} threw exception`;
+      this.error = 'threw exception';
     }
   }
 
   print() {
     if (this.failed) {
-      console.log(`not ok ${this.id} ${this.description}`);
-      console.log(' ---');
-      console.log(' actual:');
-      console.log('   hostname: \'peebles.example.com\'');
-      console.log('   address: ~');
-      console.log(' expected:');
-      console.log('   hostname: \'peebles.example.com\'');
-      console.log('   address: \'85.193.201.85\'');
-      console.log(' ...');
+      console.log(`not ok ${this.id} ${this.description}: ${this.error}`);
     } else {
       console.log(`ok ${this.id} ${this.description}`);
     }
@@ -45,7 +37,7 @@ function assert(description, func) {
       tester.try();
       tester.print();
       if (tester.failed) resolve(tester.error);
-      else resolve(null, tester.value);
+      else resolve(null, tester.returnValue.value);
     });
   }
 
@@ -56,13 +48,21 @@ function assert(description, func) {
         tester.print();
         resolve(tester.error);
       }
-      else if (val === tester.value) {
+      else if (val === tester.returnValue.value) {
         tester.failed = false;
         tester.print();
         resolve(null, true);
       }
       else {
         tester.failed = true;
+        const errorLines = [
+          'did not match expectation\n',
+          ' ---\n',
+          ` actual: ${tester.returnValue.value}\n`,
+          ` expected: ${val}\n`,
+          ' ...\n',
+        ];
+        tester.error = errorLines.join('');
         tester.print();
         resolve('not equal');
       }

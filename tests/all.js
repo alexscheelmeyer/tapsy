@@ -1,3 +1,3 @@
-require('./1-tst');
-require('./2-tst');
+require('./succeeds');
+require('./equals');
 
