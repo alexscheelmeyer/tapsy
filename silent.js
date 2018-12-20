@@ -1,3 +1,4 @@
 const core = require('./core');
 
-module.exports = core();
+module.exports = core(true);
+
