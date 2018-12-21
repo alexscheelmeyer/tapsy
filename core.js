@@ -70,70 +70,69 @@ function init(silent) {
     console.log('TAP version 13');
   }
 
-  const tests = [];
   let rootPromise = new Promise((resolve) => resolve());
+  function queue(func) {
+    rootPromise = rootPromise.then(func);
+    return rootPromise;
+  }
+
+  const tests = [];
 
   function assert(description, func) {
     const tester = new Tester(tests.length + 1, func, description, silent);
     tests.push(tester);
 
     function succeeds() {
-      rootPromise = rootPromise
-        .then(() =>
-          new Promise(async (resolve) => {
-            await tester.try();
-            tester.print();
-            if (tester.failed) resolve(tester.error);
-            else resolve(tester.returnValue.value);
-          }));
-      return rootPromise;
+      return queue(
+        () => new Promise(async (resolve) => {
+          await tester.try();
+          tester.print();
+          if (tester.failed) resolve(tester.error);
+          else resolve(tester.returnValue.value);
+        }));
     }
 
     function fails() {
-      rootPromise = rootPromise
-        .then(() =>
-          new Promise(async (resolve) => {
-            await tester.try();
-            if (tester.failed) {
-              tester.failed = false;
-            } else {
-              tester.error = 'succeeded';
-              tester.failed = true;
-            }
-            tester.print();
-            if (tester.failed) resolve();
-            else resolve(tester.error);
-          }));
-      return rootPromise;
+      return queue(
+        () => new Promise(async (resolve) => {
+          await tester.try();
+          if (tester.failed) {
+            tester.failed = false;
+          } else {
+            tester.error = 'succeeded';
+            tester.failed = true;
+          }
+          tester.print();
+          if (tester.failed) resolve();
+          else resolve(tester.error);
+        }));
     }
 
     function equals(val) {
-      rootPromise = rootPromise
-        .then(() =>
-          new Promise(async (resolve) => {
-            await tester.try();
-            if (tester.failed) {
-              tester.print();
-              resolve(tester.error);
-            } else if (_.isEqual(val, tester.returnValue.value)) {
-              tester.failed = false;
-              tester.print();
-              resolve(true);
-            } else {
-              tester.failed = true;
-              const errorLines = [
-                'did not match expectation\n',
-                ' ---\n',
-                ` actual: ${JSON.stringify(tester.returnValue.value)}\n`,
-                ` expected: ${JSON.stringify(val)}\n`,
-                ' ...\n',
-              ];
-              tester.error = errorLines.join('');
-              tester.print();
-              resolve('not equal');
-            }
-          }));
-      return rootPromise;
+      return queue(
+        () => new Promise(async (resolve) => {
+          await tester.try();
+          if (tester.failed) {
+            tester.print();
+            resolve(tester.error);
+          } else if (_.isEqual(val, tester.returnValue.value)) {
+            tester.failed = false;
+            tester.print();
+            resolve(true);
+          } else {
+            tester.failed = true;
+            const errorLines = [
+              'did not match expectation\n',
+              ' ---\n',
+              ` actual: ${JSON.stringify(tester.returnValue.value)}\n`,
+              ` expected: ${JSON.stringify(val)}\n`,
+              ' ...\n',
+            ];
+            tester.error = errorLines.join('');
+            tester.print();
+            resolve('not equal');
+          }
+        }));
     }
 
     return { succeeds, fails, equals };
@@ -141,13 +140,12 @@ function init(silent) {
 
 
   function header(text) {
-    rootPromise = rootPromise
-      .then(() => {
+    return queue(
+      () => {
         if (!silent) {
           console.log(`# ${text}`);
         }
       });
-    return rootPromise;
   }
 
 
@@ -155,7 +153,7 @@ function init(silent) {
     process.on('exit', () => console.log(`1..${tests.length}`));
   }
 
-  return { assert, header };
+  return { assert, header, queue };
 }
 
 module.exports = init;
