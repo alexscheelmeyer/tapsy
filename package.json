@@ -1,19 +1,19 @@
 {
   "name": "tapsy",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "testing framework",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text-summary node tests/all.js | tap-difflet",
+    "test": "c8 --reporter text-summary node tests/all.js | tap-difflet",
     "lint": "eslint ."
   },
   "author": "Alex Scheel Meyer",
   "license": "MIT",
   "devDependencies": {
+    "c8": "3.4.0",
     "eslint": "3.17.1",
     "eslint-config-cerebral": "0.0.15",
     "eslint-plugin-import": "2.2.0",
-    "nyc": "13.1.0",
     "tap-difflet": "0.7.1"
   },
   "dependencies": {
