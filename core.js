@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const isEqual = require('lodash.isequal');
 
 function isPromise(func) {
   return func && typeof func.then === 'function';
@@ -17,6 +17,11 @@ class Tester {
 
   async try() {
     try {
+      if (typeof this.func !== 'function') {
+        this.failed = true;
+        this.error = 'Test-entity must be a function';
+        return;
+      }
       const isAsync = this.func.length >= 1;
       if (isAsync) {
         const value = this.func((err, ...args) => {
@@ -115,7 +120,7 @@ function init(silent) {
           if (tester.failed) {
             tester.print();
             resolve(tester.error);
-          } else if (_.isEqual(val, tester.returnValue.value)) {
+          } else if (isEqual(val, tester.returnValue.value)) {
             tester.failed = false;
             tester.print();
             resolve(true);

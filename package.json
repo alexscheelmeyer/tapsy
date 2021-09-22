@@ -1,6 +1,6 @@
 {
   "name": "tapsy",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "testing framework",
   "main": "index.js",
   "scripts": {
@@ -10,13 +10,13 @@
   "author": "Alex Scheel Meyer",
   "license": "MIT",
   "devDependencies": {
-    "c8": "3.4.0",
+    "c8": "7.9.0",
     "eslint": "3.17.1",
     "eslint-config-cerebral": "0.0.15",
     "eslint-plugin-import": "2.2.0",
     "tap-difflet": "0.7.1"
   },
   "dependencies": {
-    "lodash": "4.17.11"
+    "lodash.isequal": "4.5.0"
   }
 }

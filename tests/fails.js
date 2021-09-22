@@ -13,3 +13,9 @@ assert('throwing string exception', () => { throw 'bah'; })   // eslint-disable-
 
 assert('delayed rejected promise', () => new Promise((resolve, reject) => setTimeout(() => reject('not fun'), 50)))
   .fails();
+
+assert('non-function', 42)
+  .fails();
+
+assert('non-function promise', (async () => 42)())
+  .fails();
