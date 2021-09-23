@@ -53,7 +53,10 @@ ok 3 division by 0
 ```
 
 Which can be piped to a reporter of your choice. For [tap-difflet](https://www.npmjs.com/package/tap-difflet) it looks like this:
+
+
 ![Example output](example-output.png)
+
 
 ### Setup and Teardown
 The `succeeds`, `fails` and `equals` functions all return a promise that will not resolve
