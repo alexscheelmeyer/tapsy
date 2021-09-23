@@ -1,4 +1,5 @@
 .eslintrc
-README.md
-example-output.png
+node_modules
 tests
+.nyc_output
+coverage
