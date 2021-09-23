@@ -52,8 +52,31 @@ ok 3 division by 0
 1..3
 ```
 
-Which can be piped to a reporter of your choice. For tap-difflet it looks like this:
+Which can be piped to a reporter of your choice. For [tap-difflet](https://www.npmjs.com/package/tap-difflet) it looks like this:
 ![Example output](example-output.png)
 
 ### Setup and Teardown
+The `succeeds`, `fails` and `equals` functions all return a promise that will not resolve
+until the test operation is finished (also works for test operations that return a promise,
+Tapsy will wait for the promise to resolve). This means you can easily control the sequence
+of operations simply by using `await` to synchronize when needed:
+
+```javascript
+async function test_db() {
+  header('setup and teardown');
+
+  const db = await connect_to_db();
+  assert('create user', () => <...>).succeeds();
+  assert('get user', () => <...>).equals(<user-object>);
+  await assert('delete user', () => <...>).succeeds();
+
+  db.disconnect();
+}
+
+test_db();
+```
+
+Notice that it is not necessary to wait for each assertion to finish to ensure the ordering
+of test operations, Tapsy will always run them in order. It is only necessary when you need to
+do your own operations after one or more tests.
 
