@@ -1,9 +1,16 @@
-const { assert, header } = require('..');
+const { assert, header, queue } = require('..');
 
+header('Sequence');
+
+let qVal = 0;
+queue(async () => qVal++);
+assert('queued value incremented', () => qVal)
+  .equals(1);
+queue(async () => qVal++);
+assert('queued value incremented again', () => qVal)
+  .equals(2);
 
 async function sequence() {
-  header('Sequence');
-
   let val = 1;
 
   await assert('delayed set', () => new Promise((resolve) => setTimeout(() => {

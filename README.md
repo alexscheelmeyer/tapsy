@@ -83,3 +83,19 @@ Notice that it is not necessary to wait for each assertion to finish to ensure t
 of test operations, Tapsy will always run them in order. It is only necessary when you need to
 do your own operations after one or more tests.
 
+Alternatively you can use the provided `queue` function that allows you put something on the
+internal Tapsy queue and be assured that things will happen in order:
+
+```javascript
+const { assert, header, queue } = require('tapsy');
+
+header('setup and teardown');
+
+let db = null;
+queue(async () => { await connect_to_db(); });
+assert('create user', () => <...>).succeeds();
+assert('get user', () => <...>).equals(<user-object>);
+assert('delete user', () => <...>).succeeds();
+queue(() => db.disconnect());
+```
+
