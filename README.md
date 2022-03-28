@@ -92,7 +92,7 @@ const { assert, header, queue } = require('tapsy');
 header('setup and teardown');
 
 let db = null;
-queue(async () => { await connect_to_db(); });
+queue(async () => { db = await connect_to_db(); });
 assert('create user', () => <...>).succeeds();
 assert('get user', () => <...>).equals(<user-object>);
 assert('delete user', () => <...>).succeeds();
