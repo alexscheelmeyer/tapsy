@@ -1,10 +1,10 @@
 {
   "name": "tapsy",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "testing framework",
   "main": "index.js",
   "scripts": {
-    "test": "c8 --reporter text-summary node tests/all.js | tap-nirvana-extended",
+    "test": "c8 --reporter text-summary node tests/all.js | tap-pretty",
     "lint": "eslint ."
   },
   "author": "Alex Scheel Meyer",
@@ -15,10 +15,10 @@
   },
   "devDependencies": {
     "c8": "7.9.0",
-    "eslint": "8.12.0",
-    "eslint-config-cerebral": "0.0.15",
-    "eslint-plugin-import": "2.2.0",
-    "tap-nirvana-extended": "1.1.2"
+    "eslint": "8.44.0",
+    "eslint-config-asm": "0.0.2",
+    "eslint-plugin-import": "2.28.1",
+    "tap-pretty": "0.0.7"
   },
   "dependencies": {
     "lodash.isequal": "4.5.0"

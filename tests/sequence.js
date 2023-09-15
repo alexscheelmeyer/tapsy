@@ -1,4 +1,4 @@
-const { assert, header, queue } = require('..');
+const { assert, header, queue } = require('../index.js');
 
 header('Sequence');
 

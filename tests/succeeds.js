@@ -1,4 +1,4 @@
-const { assert, header } = require('..');
+const { assert, header } = require('../index.js');
 
 header('Succeeds');
 

@@ -1,4 +1,4 @@
-require('./succeeds');
-require('./fails');
-require('./equals');
-require('./sequence');
+require('./succeeds.js');
+require('./fails.js');
+require('./equals.js');
+require('./sequence.js');

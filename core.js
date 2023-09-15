@@ -77,7 +77,8 @@ function init(silent) {
 
   let rootPromise = new Promise((resolve) => resolve());
   function queue(func) {
-    rootPromise = rootPromise.then(func);
+    rootPromise = rootPromise.then(func)
+      .catch((e) => console.log(`not ok Queue command failed: ${e}`));
     return rootPromise;
   }
 
